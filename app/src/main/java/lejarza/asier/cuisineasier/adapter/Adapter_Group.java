@@ -1,10 +1,17 @@
 package lejarza.asier.cuisineasier.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.yqritc.recyclerviewflexibledivider.FlexibleDividerDecoration;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +19,7 @@ import lejarza.asier.cuisineasier.R;
 import lejarza.asier.cuisineasier.adapter.models.Model_Group;
 import lejarza.asier.cuisineasier.adapter.viewholder.ViewHolder_Group;
 
-public class Adapter_Group extends RecyclerView.Adapter<ViewHolder_Group> {
+public class Adapter_Group extends RecyclerView.Adapter<ViewHolder_Group>{
 
     private final LayoutInflater mInflater;
     private final List<Model_Group> mModels_id;
@@ -41,20 +48,17 @@ public class Adapter_Group extends RecyclerView.Adapter<ViewHolder_Group> {
         final Model_Group model_camera_name = mModels_camera_name.get(position);
         final Model_Group model_earth_date = mModels_earth_date.get(position);
         final Model_Group model_image = mModels_image.get(position);
-        holder.itemView.setLongClickable(true);
 
-        final int pos = position;
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                setPosition(pos);
-                return false;
-            }
-
-        });
+        if(position % 2 == 0) {
+            holder.itemView.setBackgroundResource(R.color.recyclerview_odd_color);
+        }else{
+            holder.itemView.setBackgroundResource(R.color.WHITE);
+        }
 
         holder.bind(model_camera_name, model_earth_date, model_image);
     }
+
+
 
     @Override
     public int getItemCount() {
@@ -77,8 +81,6 @@ public class Adapter_Group extends RecyclerView.Adapter<ViewHolder_Group> {
     public void setPosition(int position) {
         this.position = position;
     }
-
-
 
 
 }

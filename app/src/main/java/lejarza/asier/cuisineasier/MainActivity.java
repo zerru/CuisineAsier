@@ -1,12 +1,16 @@
 package lejarza.asier.cuisineasier;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -22,7 +26,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
     private List<Model_Group> mModels_name;
     private List<Model_Group> mModels_image;
 
+    //GET Variables:
+    private ProgressDialog progress;
+    String str = "";
+    ArrayList<String> photo_id = new ArrayList<String>();
+    ArrayList<String> earth_date = new ArrayList<String>();
+    ArrayList<String> camera_full_name = new ArrayList<String>();
+    ArrayList<String> image_source = new ArrayList<String>();
+    int size_data = 0;
 
 
     @Override
@@ -59,12 +81,19 @@ public class MainActivity extends AppCompatActivity {
 
         MainActivity.mContext = getApplicationContext();
 
+        if(haveNetworkConnection()){
+            sendGetRequest();
+        }else{
+            show_No_Network_Dialog();
+        }
+
 
         mRecyclerView = (RecyclerView) this.findViewById(R.id.recyclerview);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL_LIST); //Divider
         mRecyclerView.addItemDecoration(itemDecoration);
+
 
         registerForContextMenu(mRecyclerView); //Para que aparezca el menu con el longclick
         mRecyclerView.addOnItemTouchListener(
@@ -96,23 +125,20 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
-        mModels_id = new ArrayList<>(); //ListArray
+
+
+
+        //For testing:
+        /*mModels_id = new ArrayList<>(); //ListArray
         mModels_date = new ArrayList<>(); //ListArray
         mModels_name = new ArrayList<>(); //ListArray
         mModels_image = new ArrayList<>(); //ListArray
-
-        int size_data = 3; //To test
         for(int i = 0; i < size_data; i++) {
             mModels_id.add(new Model_Group("1"));
             mModels_date.add(new Model_Group("2016/10/15"));
             mModels_name.add(new Model_Group("my_camera"));
             mModels_image.add(new Model_Group("http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265257EDR_F0481570FHAZ00323M_.JPG"));
-        }
-
-        mAdapter = new Adapter_Group(MainActivity.this, mModels_id, mModels_date, mModels_name, mModels_image);
-        mRecyclerView.setAdapter(mAdapter);
-
-
+        }//*/
 
 
         back_pressed = false; //Al pulsarlo 3 veces: Sale de la app
@@ -221,6 +247,148 @@ public class MainActivity extends AppCompatActivity {
         b.show();
         TextView msgTxt = (TextView) b.findViewById(android.R.id.message);
         msgTxt.setTextSize(20); //Tamaño del texto
+    }
+
+    public void show_No_Network_Dialog() {
+        android.app.AlertDialog.Builder exit_dialogBuilder = new android.app.AlertDialog.Builder(this);
+        exit_dialogBuilder.setTitle(getResources().getString(R.string.no_network_title));
+        exit_dialogBuilder.setIcon(android.R.drawable.ic_dialog_alert);
+        exit_dialogBuilder.setMessage(getResources().getString(R.string.no_network_message) + '\n');
+
+
+        exit_dialogBuilder.setCancelable(false); //Cancelable con el boton de atrás
+
+        exit_dialogBuilder.setPositiveButton(Html.fromHtml("<b>" + getString(R.string.dialog_button_exit) + "<b>"), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                finish();
+                System.exit(0);
+            }
+        });
+
+        Dialog b = exit_dialogBuilder.create();
+
+        b.show();
+        TextView msgTxt = (TextView) b.findViewById(android.R.id.message);
+        msgTxt.setTextSize(20); //Tamaño del texto
+    }
+
+
+    private boolean haveNetworkConnection() {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (ni.isConnected())
+                    haveConnectedWifi = true;
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                if (ni.isConnected())
+                    haveConnectedMobile = true;
+        }
+        return haveConnectedWifi || haveConnectedMobile;
+    }
+
+
+    // To get the data from the API, with GET
+    public void sendGetRequest() {
+        new GetClass(this).execute();
+    }
+
+    private class GetClass extends AsyncTask<String, Void, Void> {
+
+        private final Context context;
+
+        public GetClass(Context c){
+            this.context = c;
+        }
+
+        protected void onPreExecute(){
+            progress = new ProgressDialog(this.context);
+            progress.setMessage(getString(R.string.msg_loading));
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                URL url = new URL("https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=DEMO_KEY");
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                String urlParameters = "fizz=buzz";
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("USER-AGENT", "Mozilla/5.0");
+                connection.setRequestProperty("ACCEPT-LANGUAGE", "en-US,en;0.5");
+
+                int responseCode = connection.getResponseCode();
+                System.out.println("\nSending 'POST' request to URL : " + url);
+                System.out.println("Post parameters : " + urlParameters);
+                System.out.println("Response Code : " + responseCode);
+
+                final StringBuilder output = new StringBuilder();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line = "";
+
+                StringBuilder responseOutput = new StringBuilder();
+                System.out.println("output===============" + br);
+                while((line = br.readLine()) != null ) {
+                    responseOutput.append(line);
+                }
+                br.close();
+                String result = responseOutput.toString();
+
+                output.append(responseOutput.toString());
+
+                ArrayList<String> store_categories_all = new ArrayList<String>();
+                try {
+                    JSONObject json = new JSONObject(result); // convert String to JSONObject
+                    JSONArray general_photos = json.getJSONArray("photos"); // get main array
+                    if (general_photos != null) {
+                        size_data = general_photos.length();
+                        mModels_id = new ArrayList<>(); //ListArray
+                        mModels_date = new ArrayList<>(); //ListArray
+                        mModels_name = new ArrayList<>(); //ListArray
+                        mModels_image = new ArrayList<>(); //ListArray
+                        for (int i=0; i < size_data; i++){
+                            mModels_id.add(new Model_Group(general_photos.getJSONObject(i).getString("id")));
+                            mModels_date.add(new Model_Group(general_photos.getJSONObject(i).getString("earth_date")));
+                            mModels_image.add(new Model_Group(general_photos.getJSONObject(i).getString("img_src")));
+
+                            JSONObject camera_info = general_photos.getJSONObject(i).getJSONObject("camera");
+                            mModels_name.add(new Model_Group(camera_info.getString("full_name")));
+                        }
+
+                        mAdapter = new Adapter_Group(MainActivity.this, mModels_id, mModels_date, mModels_name, mModels_image);
+
+                    }
+                } catch (JSONException e) {
+                    // Do something with the exception
+                }
+
+                int cat_size = store_categories_all.size();
+                str = Integer.toString(cat_size);
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //outputView.setText(str);
+                        progress.dismiss();
+                        mRecyclerView.setAdapter(mAdapter);
+
+                    }
+                });
+
+            } catch (MalformedURLException e) {
+                // Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        }
+
     }
 
 

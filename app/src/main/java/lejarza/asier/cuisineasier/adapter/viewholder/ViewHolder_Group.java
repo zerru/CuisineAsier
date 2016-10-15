@@ -34,6 +34,7 @@ public class ViewHolder_Group extends RecyclerView.ViewHolder implements View.On
 
         image.getLayoutParams().height = 180;
 
+
         new lejarza.asier.cuisineasier.DownloadImageTask(image).execute(model_image.getText());
     }
 

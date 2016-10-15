@@ -9,8 +9,14 @@
     <string name="dialog_button_exit">Exit</string>
     <string name="dialog_button_cancel">Cancel</string>
 
+    <string name="no_network_title">No network</string>
+    <string name="no_network_message">Check your network connection, please.</string>
+
+
     <string name="action_filter">Filter</string>
     <string name="action_exit">Exit</string>
+
+    <string name="msg_loading">Loading</string>
 
 
 

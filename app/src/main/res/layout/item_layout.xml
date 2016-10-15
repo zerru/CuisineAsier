@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="204dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvText_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:text="date"
+                android:singleLine="false"
+                android:textSize="20dp"
+                android:textIsSelectable="false"
+
+                android:layout_gravity="top"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp" />
+
+            <TextView
+                android:id="@+id/tvText_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="camera_name"
+                android:textColor="#000000"
+                android:singleLine="false"
+                android:textSize="16dp"
+                android:textIsSelectable="false"
+
+                android:layout_gravity="bottom"
+                android:paddingLeft="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="right">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/imageView_photo"
+                android:layout_gravity="right"
+                android:minWidth="120dp"
+                android:minHeight="90dp"
+                android:maxHeight="150dp"
+                android:maxWidth="150dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

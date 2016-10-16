@@ -13,12 +13,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/check_view"
-        android:tag="screen_normal"
-        >
-
-
+        android:orientation="vertical">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -38,7 +33,19 @@
 
         </android.support.design.widget.AppBarLayout>
 
+        <!--<android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
 
-        <include layout="@layout/content_main"/>
+            />-->
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView" />
+
+
+        <!--<include layout="@layout/content_main"/> -->
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

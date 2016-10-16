@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.net.URL;
 
 import lejarza.asier.cuisineasier.R;
+import lejarza.asier.cuisineasier.Utility;
 import lejarza.asier.cuisineasier.adapter.models.Model_Group;
 
 public class ViewHolder_Group extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnCreateContextMenuListener{
@@ -32,7 +33,12 @@ public class ViewHolder_Group extends RecyclerView.ViewHolder implements View.On
         tvText_date.setText(model_date.getText());
         tvText_name.setText(model_name.getText());
 
-        image.getLayoutParams().height = 180;
+        int screen_size = Utility.getData_screen_size();
+        if(screen_size == 1) {
+            image.getLayoutParams().height = 180;
+        } else if (screen_size == 2){
+            image.getLayoutParams().height = 80;
+        }
 
 
         new lejarza.asier.cuisineasier.DownloadImageTask(image).execute(model_image.getText());

@@ -88,9 +88,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        if(findViewById(R.id.check_view).getTag().equals("screen_normal")) {
+            Utility.setData_screen_size(1);
+        }else if(findViewById(R.id.check_view).getTag().equals("screen_small")){
+            Utility.setData_screen_size(2);
+        }
+
         mRecyclerView = (RecyclerView) this.findViewById(R.id.recyclerview);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        //The Divider is not neccesary, because the odd items are in grey:
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL_LIST); //Divider
         mRecyclerView.addItemDecoration(itemDecoration);
 
@@ -101,21 +108,20 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onItemClick(View childView, int position) {
                         //int itemPosition = mRecyclerView.getChildLayoutPosition(childView);
                         //Toast.makeText(childView.getContext(), "position = " + itemPosition, Toast.LENGTH_SHORT).show();
-/*
-                        Intent start = new Intent(MainActivity.this, Store_View.class);
-                        Model_Group name_model;
 
-                        name_model = mModels.get(position);
-
-                        String name = name_model.getText();
+                        Intent start = new Intent(MainActivity.this, Show_Photo.class);
 
                         Model_Group model_value;
-                        model_value = mModels_value.get(position);
+                        model_value = mModels_id.get(position);
                         String value_string = model_value.getText();
-                        int store_value = Integer.parseInt(value_string);
 
-                        start.putExtra("store_id", value_string);
-                        startActivity(start);*/
+                        Model_Group model_image;
+                        model_image = mModels_image.get(position);
+                        String image_string = model_image.getText();
+
+                        start.putExtra("id", value_string);
+                        start.putExtra("url", image_string);
+                        startActivity(start);
                     }
 
                     @Override public void onLongItemClick(View childView, int position) {

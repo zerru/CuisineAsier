@@ -12,6 +12,8 @@
     <string name="no_network_title">No network</string>
     <string name="no_network_message">Check your network connection, please.</string>
 
+    <string name="title_Show_Photo">Photo</string>
+
 
     <string name="action_filter">Filter</string>
     <string name="action_exit">Exit</string>

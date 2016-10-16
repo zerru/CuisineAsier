@@ -19,6 +19,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="lejarza.asier.cuisineasier.Show_Photo"
+            android:label="@string/title_Show_Photo"
+            android:theme="@style/AppTheme" />
 
     </application>
 
